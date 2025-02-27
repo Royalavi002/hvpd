@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operator Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            position: relative; /* Added for footer positioning */
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            width: 400px;
+        }
+
+        #operatorPage, #masterPage, #adminPage {
+            display: none;
+            width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .input-group, .select-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input, .select-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .select-group select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            cursor: pointer;
+        }
+
+        .input-group input:focus, .select-group select:focus {
+            border-color: #00ddeb;
+            box-shadow: 0 0 8px rgba(0, 221, 235, 0.3);
+        }
+
+        .input-group label, .select-group label {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ccc;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label,
+        .select-group select:focus + label,
+        .select-group select.selected + label {
+            top: -10px;
+            font-size: 12px;
+            color: #00ddeb;
+            background: transparent;
+            padding: 0 5px;
+        }
+
+        .select-group select option {
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #00ddeb, #007bff);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 221, 235, 0.4);
+        }
+
+        .decision-btn {
+            width: 48%;
+            padding: 8px;
+            margin: 0 1% 15px;
+        }
+
+        .ok-btn {
+            background: linear-gradient(45deg, #28a745, #34c759);
+        }
+
+        .reject-btn {
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #00ddeb;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .list {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            color: #fff;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Footer Styling */
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #00ddeb;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 221, 235, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 221, 235, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Login Page -->
+    <div class="container" id="adminLoginPage">
+        <div class="header">
+            <h1>Admin Login</h1>
+            <p>Please enter your admin credentials</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="adminId" placeholder=" ">
+            <label for="adminId">Admin ID</label>
+        </div>
+        <div class="input-group">
+            <input type="password" id="adminPassword" placeholder=" ">
+            <label for="adminPassword">Password</label>
+        </div>
+        <button class="btn" onclick="adminLogin()">Login</button>
+        <button class="toggle-btn" onclick="showOperatorLogin()">Switch to Operator Login</button>
+        <button class="toggle-btn" onclick="showMasterLogin()">Switch to Master Login</button>
+    </div>
+
+    <!-- Operator Login Page -->
+    <div class="container" id="operatorLoginPage" style="display: none;">
+        <div class="header">
+            <h1>Operator Login</h1>
+            <p>Please enter your operator credentials</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="operatorId" placeholder=" ">
+            <label for="operatorId">Operator ID</label>
+        </div>
+        <div class="input-group">
+            <input type="password" id="operatorPassword" placeholder=" ">
+            <label for="operatorPassword">Password</label>
+        </div>
+        <button class="btn" onclick="operatorLogin()">Login</button>
+        <button class="toggle-btn" onclick="showAdminLogin()">Switch to Admin Login</button>
+        <button class="toggle-btn" onclick="showMasterLogin()">Switch to Master Login</button>
+    </div>
+
+    <!-- Master Login Page -->
+    <div class="container" id="masterLoginPage" style="display: none;">
+        <div class="header">
+            <h1>Master Login</h1>
+            <p>Please enter your master credentials</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="masterId" placeholder=" ">
+            <label for="masterId">Master ID</label>
+        </div>
+        <div class="input-group">
+            <input type="password" id="masterPassword" placeholder=" ">
+            <label for="masterPassword">Password</label>
+        </div>
+        <button class="btn" onclick="masterLogin()">Login</button>
+        <button class="toggle-btn" onclick="showAdminLogin()">Switch to Admin Login</button>
+        <button class="toggle-btn" onclick="showOperatorLogin()">Switch to Operator Login</button>
+    </div>
+
+    <!-- Admin Page -->
+    <div class="container" id="adminPage">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <p>Welcome, Admin</p>
+        </div>
+        <h2>Operator Management</h2>
+        <div class="input-group">
+            <input type="text" id="newOperatorId" placeholder=" ">
+            <label for="newOperatorId">New Operator ID</label>
+        </div>
+        <div class="input-group">
+            <input type="password" id="newOperatorPassword" placeholder=" ">
+            <label for="newOperatorPassword">New Operator Password</label>
+        </div>
+        <button class="btn" onclick="addOperator()">Add Operator</button>
+        <div class="list" id="operatorList">
+            <!-- Operator list -->
+        </div>
+        <h2>Component Management</h2>
+        <div class="input-group">
+            <input type="text" id="newComponent" placeholder=" ">
+            <label for="newComponent">New Component</label>
+        </div>
+        <button class="btn" onclick="addComponent()">Add Component</button>
+        <div class="list" id="componentList">
+            <!-- Component list -->
+        </div>
+        <button class="btn" onclick="logoutAdmin()">Logout</button>
+    </div>
+
+    <!-- Operator Page -->
+    <div class="container" id="operatorPage">
+        <div class="header">
+            <h1>Operator Dashboard</h1>
+            <p id="operatorName">Welcome, Operator</p>
+        </div>
+        <div class="select-group">
+            <select id="componentSelect" onchange="addComponentToList()">
+                <option value="">Select Component</option>
+            </select>
+            <label for="componentSelect">Master Component List</label>
+        </div>
+        <div class="input-group">
+            <input type="text" id="pieceNumber" placeholder=" " oninput="showDecisionButtons()">
+            <label for="pieceNumber">Piece Number</label>
+        </div>
+        <div id="decisionButtons" style="display: none;">
+            <button class="btn decision-btn ok-btn" onclick="decidePiece('OK')">OK</button>
+            <button class="btn decision-btn reject-btn" onclick="decidePiece('Reject')">Reject</button>
+        </div>
+        <div class="list" id="pieceList">
+            <!-- Operator's scanned pieces -->
+        </div>
+        <button class="btn" onclick="logoutOperator()">Logout & Download Excel</button>
+    </div>
+
+    <!-- Master Page -->
+    <div class="container" id="masterPage">
+        <div class="header">
+            <h1>Master Dashboard</h1>
+            <p>Welcome, Master</p>
+        </div>
+        <div class="list" id="masterDataList">
+            <!-- All operator data -->
+        </div>
+        <button class="btn" onclick="downloadExcel()">Download Excel</button>
+        <button class="btn delete-btn" onclick="deleteAllData()">Delete All Data</button>
+        <button class="btn" onclick="logoutMaster()">Logout</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">Created by Avinash Divte</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script>
+        const adminCredentials = { id: "admin", password: "admin123" };
+        let operators = JSON.parse(localStorage.getItem('operators')) || [{ id: "operator", password: "op123" }];
+        let components = JSON.parse(localStorage.getItem('components')) || ["Component1", "Component2"];
+        const masterCredentials = { id: "master", password: "master123" };
+        let allData = JSON.parse(localStorage.getItem('operatorData')) || [];
+        let currentOperator = null;
+
+        window.onload = function() {
+            showAdminLogin();
+            updateOperatorList();
+            updateComponentList();
+            populateComponentSelect();
+        };
+
+        // Show login pages
+        function showAdminLogin() {
+            document.getElementById('adminLoginPage').style.display = 'block';
+            document.getElementById('operatorLoginPage').style.display = 'none';
+            document.getElementById('masterLoginPage').style.display = 'none';
+            document.getElementById('operatorPage').style.display = 'none';
+            document.getElementById('masterPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'none';
+            clearInputs();
+        }
+
+        function showOperatorLogin() {
+            document.getElementById('adminLoginPage').style.display = 'none';
+            document.getElementById('operatorLoginPage').style.display = 'block';
+            document.getElementById('masterLoginPage').style.display = 'none';
+            document.getElementById('operatorPage').style.display = 'none';
+            document.getElementById('masterPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'none';
+            clearInputs();
+        }
+
+        function showMasterLogin() {
+            document.getElementById('adminLoginPage').style.display = 'none';
+            document.getElementById('operatorLoginPage').style.display = 'none';
+            document.getElementById('masterLoginPage').style.display = 'block';
+            document.getElementById('operatorPage').style.display = 'none';
+            document.getElementById('masterPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'none';
+            clearInputs();
+        }
+
+        function clearInputs() {
+            document.getElementById('adminId').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('operatorId').value = '';
+            document.getElementById('operatorPassword').value = '';
+            document.getElementById('masterId').value = '';
+            document.getElementById('masterPassword').value = '';
+            document.getElementById('newOperatorId').value = '';
+            document.getElementById('newOperatorPassword').value = '';
+            document.getElementById('newComponent').value = '';
+        }
+
+        // Login functions
+        function adminLogin() {
+            const adminId = document.getElementById('adminId').value;
+            const adminPassword = document.getElementById('adminPassword').value;
+            if (adminId === adminCredentials.id && adminPassword === adminCredentials.password) {
+                showAdminPage();
+            } else {
+                alert("Invalid Admin credentials");
+            }
+        }
+
+        function operatorLogin() {
+            const operatorId = document.getElementById('operatorId').value;
+            const operatorPassword = document.getElementById('operatorPassword').value;
+            const operator = operators.find(op => op.id === operatorId && op.password === operatorPassword);
+            if (operator) {
+                currentOperator = operator;
+                showOperatorPage();
+            } else {
+                alert("Invalid Operator credentials");
+            }
+        }
+
+        function masterLogin() {
+            const masterId = document.getElementById('masterId').value;
+            const masterPassword = document.getElementById('masterPassword').value;
+            if (masterId === masterCredentials.id && masterPassword === masterCredentials.password) {
+                showMasterPage();
+            } else {
+                alert("Invalid Master credentials");
+            }
+        }
+
+        // Page display functions
+        function showAdminPage() {
+            document.getElementById('adminLoginPage').style.display = 'none';
+            document.getElementById('operatorLoginPage').style.display = 'none';
+            document.getElementById('masterLoginPage').style.display = 'none';
+            document.getElementById('operatorPage').style.display = 'none';
+            document.getElementById('masterPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+            updateOperatorList();
+            updateComponentList();
+        }
+
+        function showOperatorPage() {
+            document.getElementById('adminLoginPage').style.display = 'none';
+            document.getElementById('operatorLoginPage').style.display = 'none';
+            document.getElementById('masterLoginPage').style.display = 'none';
+            document.getElementById('operatorPage').style.display = 'block';
+            document.getElementById('masterPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'none';
+            document.getElementById('operatorName').textContent = `Welcome, ${currentOperator.id}`;
+            populateComponentSelect();
+            updatePieceList();
+        }
+
+        function showMasterPage() {
+            document.getElementById('adminLoginPage').style.display = 'none';
+            document.getElementById('operatorLoginPage').style.display = 'none';
+            document.getElementById('masterLoginPage').style.display = 'none';
+            document.getElementById('operatorPage').style.display = 'none';
+            document.getElementById('masterPage').style.display = 'block';
+            document.getElementById('adminPage').style.display = 'none';
+            updateMasterDataList();
+        }
+
+        // Admin functions
+        function addOperator() {
+            const newId = document.getElementById('newOperatorId').value.trim();
+            const newPassword = document.getElementById('newOperatorPassword').value.trim();
+            if (newId && newPassword) {
+                if (operators.some(op => op.id === newId)) {
+                    alert("Operator ID already exists!");
+                } else {
+                    operators.push({ id: newId, password: newPassword });
+                    localStorage.setItem('operators', JSON.stringify(operators));
+                    updateOperatorList();
+                    document.getElementById('newOperatorId').value = '';
+                    document.getElementById('newOperatorPassword').value = '';
+                    alert("Operator added successfully!");
+                }
+            } else {
+                alert("Please enter both ID and password!");
+            }
+        }
+
+        function deleteOperator(operatorId) {
+            if (confirm(`Are you sure you want to delete operator ${operatorId}?`)) {
+                operators = operators.filter(op => op.id !== operatorId);
+                localStorage.setItem('operators', JSON.stringify(operators));
+                updateOperatorList();
+                alert(`Operator ${operatorId} deleted successfully!`);
+            }
+        }
+
+        function updateOperatorList() {
+            const operatorList = document.getElementById('operatorList');
+            operatorList.innerHTML = '';
+            operators.forEach(op => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `ID: ${op.id} <button class="btn delete-btn" onclick="deleteOperator('${op.id}')">Delete</button>`;
+                operatorList.appendChild(div);
+            });
+        }
+
+        function addComponent() {
+            const newComponent = document.getElementById('newComponent').value.trim();
+            if (newComponent) {
+                if (components.includes(newComponent)) {
+                    alert("Component already exists!");
+                } else {
+                    components.push(newComponent);
+                    localStorage.setItem('components', JSON.stringify(components));
+                    updateComponentList();
+                    populateComponentSelect();
+                    document.getElementById('newComponent').value = '';
+                    alert("Component added successfully!");
+                }
+            } else {
+                alert("Please enter a component name!");
+            }
+        }
+
+        function deleteComponent(componentName) {
+            if (confirm(`Are you sure you want to delete component ${componentName}?`)) {
+                components = components.filter(comp => comp !== componentName);
+                localStorage.setItem('components', JSON.stringify(components));
+                updateComponentList();
+                populateComponentSelect();
+                alert(`Component ${componentName} deleted successfully!`);
+            }
+        }
+
+        function updateComponentList() {
+            const componentList = document.getElementById('componentList');
+            componentList.innerHTML = '';
+            components.forEach(comp => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `${comp} <button class="btn delete-btn" onclick="deleteComponent('${comp}')">Delete</button>`;
+                componentList.appendChild(div);
+            });
+        }
+
+        // Operator functions
+        function populateComponentSelect() {
+            const select = document.getElementById('componentSelect');
+            select.innerHTML = '<option value="">Select Component</option>';
+            components.forEach(comp => {
+                const option = document.createElement('option');
+                option.value = comp;
+                option.textContent = comp;
+                select.appendChild(option);
+            });
+            select.classList.remove('selected');
+        }
+
+        function addComponentToList() {
+            const select = document.getElementById('componentSelect');
+            const selectedComponent = select.value;
+            if (selectedComponent) {
+                select.classList.add('selected');
+                document.getElementById('pieceNumber').focus();
+            } else {
+                select.classList.remove('selected');
+            }
+        }
+
+        function showDecisionButtons() {
+            const pieceNumber = document.getElementById('pieceNumber').value.trim();
+            const selectedComponent = document.getElementById('componentSelect').value;
+            document.getElementById('decisionButtons').style.display = (pieceNumber && selectedComponent) ? 'flex' : 'none';
+        }
+
+        function decidePiece(status) {
+            const pieceNumber = document.getElementById('pieceNumber').value.trim();
+            const selectedComponent = document.getElementById('componentSelect').value;
+            const dateTime = new Date().toLocaleString();
+
+            const pieceData = {
+                component: selectedComponent,
+                pieceNumber: pieceNumber,
+                status: status,
+                operator: currentOperator.id,
+                dateTime: dateTime
+            };
+
+            allData.push(pieceData);
+            localStorage.setItem('operatorData', JSON.stringify(allData));
+            updatePieceList();
+            document.getElementById('decisionButtons').style.display = 'none';
+            document.getElementById('pieceNumber').value = '';
+            document.getElementById('pieceNumber').focus();
+        }
+
+        function updatePieceList() {
+            const pieceList = document.getElementById('pieceList');
+            pieceList.innerHTML = '';
+            const operatorPieces = allData.filter(data => data.operator === currentOperator.id);
+            operatorPieces.forEach(data => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.textContent = `${data.component} | ${data.pieceNumber} | ${data.status} | ${data.dateTime}`;
+                pieceList.appendChild(div);
+            });
+        }
+
+        async function downloadOperatorExcel() {
+            const operatorData = allData.filter(data => data.operator === currentOperator.id);
+            if (operatorData.length === 0) {
+                alert("No data to download for this operator.");
+                return;
+            }
+
+            try {
+                const wb = new ExcelJS.Workbook();
+                const ws = wb.addWorksheet("OperatorData");
+
+                ws.columns = [
+                    { header: "Component", key: "component", width: 20 },
+                    { header: "Piece Number", key: "pieceNumber", width: 15 },
+                    { header: "Status", key: "status", width: 10 },
+                    { header: "Operator", key: "operator", width: 15 },
+                    { header: "DateTime", key: "dateTime", width: 20 }
+                ];
+
+                operatorData.forEach(item => ws.addRow({
+                    component: item.component,
+                    pieceNumber: item.pieceNumber,
+                    status: item.status,
+                    operator: item.operator,
+                    dateTime: item.dateTime
+                }));
+
+                await ws.protect("admin123", {
+                    selectLockedCells: true,
+                    selectUnlockedCells: true,
+                    formatCells: false,
+                    formatColumns: false,
+                    formatRows: false,
+                    insertColumns: false,
+                    insertRows: false,
+                    deleteColumns: false,
+                    deleteRows: false,
+                    sort: false,
+                    autoFilter: false,
+                    pivotTables: false
+                });
+
+                const buffer = await wb.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Operator_${currentOperator.id}_Data.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                console.log("Operator Excel file downloaded successfully.");
+            } catch (err) {
+                console.error("Error generating Operator Excel file:", err);
+                alert("Failed to save Operator Excel file.");
+            }
+        }
+
+        // Master functions
+        function updateMasterDataList() {
+            const masterDataList = document.getElementById('masterDataList');
+            masterDataList.innerHTML = '';
+            allData.forEach((data, index) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `${data.component} | ${data.pieceNumber} | ${data.status} | ${data.operator} | ${data.dateTime} <button class="btn delete-btn" onclick="deleteSingleEntry(${index})">Delete</button>`;
+                masterDataList.appendChild(div);
+            });
+        }
+
+        function deleteSingleEntry(index) {
+            if (confirm("Are you sure you want to delete this entry?")) {
+                allData.splice(index, 1);
+                localStorage.setItem('operatorData', JSON.stringify(allData));
+                updateMasterDataList();
+            }
+        }
+
+        function deleteAllData() {
+            if (confirm("Are you sure you want to delete all data?")) {
+                allData = [];
+                localStorage.setItem('operatorData', JSON.stringify(allData));
+                updateMasterDataList();
+            }
+        }
+
+        async function downloadExcel() {
+            if (allData.length === 0) {
+                alert("No data to download.");
+                return;
+            }
+
+            try {
+                const wb = new ExcelJS.Workbook();
+                const ws = wb.addWorksheet("ScanData");
+
+                ws.columns = [
+                    { header: "Component", key: "component", width: 20 },
+                    { header: "Piece Number", key: "pieceNumber", width: 15 },
+                    { header: "Status", key: "status", width: 10 },
+                    { header: "Operator", key: "operator", width: 15 },
+                    { header: "DateTime", key: "dateTime", width: 20 }
+                ];
+
+                allData.forEach(item => ws.addRow({
+                    component: item.component,
+                    pieceNumber: item.pieceNumber,
+                    status: item.status,
+                    operator: item.operator,
+                    dateTime: item.dateTime
+                }));
+
+                await ws.protect("master123", {
+                    selectLockedCells: true,
+                    selectUnlockedCells: true,
+                    formatCells: false,
+                    formatColumns: false,
+                    formatRows: false,
+                    insertColumns: false,
+                    insertRows: false,
+                    deleteColumns: false,
+                    deleteRows: false,
+                    sort: false,
+                    autoFilter: false,
+                    pivotTables: false
+                });
+
+                const buffer = await wb.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = "ScanData_Protected.xlsx";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                console.log("Master Excel file downloaded successfully.");
+            } catch (err) {
+                console.error("Error generating Master Excel file:", err);
+                alert("Failed to save Master Excel file.");
+            }
+        }
+
+        // Logout functions
+        function logoutAdmin() {
+            document.getElementById('adminPage').style.display = 'none';
+            showAdminLogin();
+        }
+
+        async function logoutOperator() {
+            if (allData.some(data => data.operator === currentOperator.id)) {
+                await downloadOperatorExcel();
+            }
+            currentOperator = null;
+            document.getElementById('operatorPage').style.display = 'none';
+            showOperatorLogin();
+        }
+
+        function logoutMaster() {
+            document.getElementById('masterPage').style.display = 'none';
+            showMasterLogin();
+        }
+    </script>
+</body>
+</html>
